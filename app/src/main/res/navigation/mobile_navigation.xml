@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/scanFragment">
+    <fragment
+        android:id="@+id/scanFragment"
+        android:name="app.ryanm.homeinventory.ui.ScanFragment"
+        android:label="Scan Items or Shelves"
+        tools:layout="@layout/fragment_scan" />
+    <fragment
+        android:id="@+id/inventoryFragment"
+        android:name="app.ryanm.homeinventory.ui.InventoryFragment"
+        android:label="Inventory"
+        tools:layout="@layout/fragment_inventory" />
+    <fragment
+        android:id="@+id/shelvesFragment"
+        android:name="app.ryanm.homeinventory.ui.ShelvesFragment"
+        android:label="Shelves"
+        tools:layout="@layout/fragment_shelves" />
+    <fragment
+        android:id="@+id/shelfFragment"
+        android:name="app.ryanm.homeinventory.ui.ShelfFragment"
+        android:label="Shelf"
+        tools:layout="@layout/fragment_shelf" />
+    <fragment
+        android:id="@+id/shoppingList"
+        android:name="app.ryanm.homeinventory.ui.ShoppingList"
+        android:label="fragment_shopping_list"
+        tools:layout="@layout/fragment_shopping_list" />
+</navigation>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/scanFragment"
+            android:title="@string/menu_scan" />
+        <item
+            android:id="@+id/inventoryFragment"
+            android:title="@string/menu_inventory" />
+        <item
+            android:id="@+id/shelvesFragment"
+            android:title="@string/menu_shelves" />
+        <item
+            android:id="@+id/shoppingList"
+            android:title="@string/menu_shopping_list"/>
+    </group>
+</menu>
