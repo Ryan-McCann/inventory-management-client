@@ -5,12 +5,25 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/loginFragment"
+            android:title="@string/menu_login"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/signoutLink"
+            android:title="@string/sign_out"
+            android:visible="false" />
+
+        <item
+            android:visible="false"
             android:id="@+id/scanFragment"
             android:title="@string/menu_scan" />
         <item
+            android:visible="false"
             android:id="@+id/inventoryFragment"
             android:title="@string/menu_inventory" />
         <item
+            android:visible="false"
             android:id="@+id/shelvesFragment"
             android:title="@string/menu_shelves" />
         <item

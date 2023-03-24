@@ -8,17 +8,35 @@
         android:id="@+id/scanFragment"
         android:name="app.ryanm.homeinventory.ui.ScanFragment"
         android:label="Scan Items or Shelves"
-        tools:layout="@layout/fragment_scan" />
+        tools:layout="@layout/fragment_scan" >
+        <action
+            android:id="@+id/action_scanFragment_to_itemFragment"
+            app:destination="@id/itemFragment" />
+        <action
+            android:id="@+id/action_scanFragment_to_shelfFragment"
+            app:destination="@id/shelfFragment" />
+        <action
+            android:id="@+id/action_scanFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
     <fragment
         android:id="@+id/inventoryFragment"
         android:name="app.ryanm.homeinventory.ui.InventoryFragment"
         android:label="Inventory"
-        tools:layout="@layout/fragment_inventory" />
+        tools:layout="@layout/fragment_inventory" >
+        <action
+            android:id="@+id/action_inventoryFragment_to_itemFragment"
+            app:destination="@id/itemFragment" />
+    </fragment>
     <fragment
         android:id="@+id/shelvesFragment"
         android:name="app.ryanm.homeinventory.ui.ShelvesFragment"
         android:label="Shelves"
-        tools:layout="@layout/fragment_shelves" />
+        tools:layout="@layout/fragment_shelves" >
+        <action
+            android:id="@+id/action_shelvesFragment_to_shelfFragment"
+            app:destination="@id/shelfFragment" />
+    </fragment>
     <fragment
         android:id="@+id/shelfFragment"
         android:name="app.ryanm.homeinventory.ui.ShelfFragment"
@@ -27,6 +45,32 @@
     <fragment
         android:id="@+id/shoppingList"
         android:name="app.ryanm.homeinventory.ui.ShoppingList"
-        android:label="fragment_shopping_list"
+        android:label="Shopping List"
         tools:layout="@layout/fragment_shopping_list" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="app.ryanm.homeinventory.ui.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_scanFragment"
+            app:destination="@id/scanFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="app.ryanm.homeinventory.ui.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_registerFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/itemFragment"
+        android:name="app.ryanm.homeinventory.ui.ItemFragment"
+        android:label="fragment_item"
+        tools:layout="@layout/fragment_item" />
 </navigation>

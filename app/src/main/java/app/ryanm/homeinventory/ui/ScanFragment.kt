@@ -1,6 +1,7 @@
 package app.ryanm.homeinventory.ui
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -16,11 +17,15 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import app.ryanm.homeinventory.R
 import app.ryanm.homeinventory.inventory.Inventory
-import app.ryanm.homeinventory.inventory.Item
 import app.ryanm.homeinventory.inventory.Shelf
 import app.ryanm.homeinventory.inventory.Shelving
+import app.ryanm.homeinventory.network.Network
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -30,8 +35,16 @@ typealias BarcodeListener = (barcode: String) -> Unit
 class ScanFragment : Fragment() {
     private var processingBarcode = AtomicBoolean(false)
     private lateinit var cameraExecutor: ExecutorService
+    private lateinit var network: Network
+    private lateinit var fragComm: IFragComm
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        network = context as Network
+        fragComm = context as IFragComm
+    }
+
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -110,22 +123,34 @@ class ScanFragment : Fragment() {
     }
 
     private fun searchBarcode(barcode: String) {
-        Log.i("Barcode: ", barcode)
+        lifecycleScope.launch (context = Dispatchers.IO) {
+            // check if barcode is a shelf label and pull up the matching shelf
+            val shelving = Shelving()
+            val shelf: Shelf =
+                shelving.getShelfByBarcode(barcode, network.getServer(), network.getUser())
 
-        // check if barcode is a shelf label and pull up the matching shelf
-        var shelving: Shelving = Shelving("0")
-        var shelf: Shelf = shelving.getShelfByBarcode(barcode)
+            if (shelf.id > -1) {
+                // open shelf fragment using shelf id
+                val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
+                navController?.navigate(R.id.action_scanFragment_to_shelfFragment)
+                fragComm.setShelfFragment(shelf)
+            }
+            // if shelf id is -1, the shelf does not exist. Check if UPC instead
+            else if (shelf.id == -1) {
+                val inventory = Inventory()
+                val item =
+                    inventory.getItemByBarcode(barcode, network.getServer(), network.getUser())
 
-        // if shelf id is -1, the shelf does not exist. Check if UPC instead
-        if(shelf.id == -1) {
-            var inventory: Inventory = Inventory("0")
-            var item: Item = inventory.getItemByBarcode(barcode)
+                if (item.id > -1) {
+                    // Open ItemFragment
+                    val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
+                    navController?.navigate(R.id.action_scanFragment_to_itemFragment)
+                    fragComm.setItemFragment(item)
+                } else {
+                    // Open NewItemFragment
+                }
+            }
         }
-        else {
-            var inventory: Inventory = Inventory("0")
-            var item: Item = inventory.getItemByBarcode(barcode)
-        }
-        // if no matching item, prompt user to create a new item or pick an alias
     }
 
 }

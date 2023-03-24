@@ -1,36 +1,43 @@
 package app.ryanm.homeinventory.inventory
 
-import android.util.Log
+import app.ryanm.homeinventory.network.Server
+import app.ryanm.homeinventory.network.User
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.json.JSONTokener
 
-class Inventory (var connectionId: String = "") {
-
-    fun getItemByBarcode (barcode: String): Item {
+class Inventory {
+    suspend fun getItemByBarcode (barcode: String, server: Server, user: User): Item {
         val json: JSONObject
-        var item: Item = Item()
+        val item = Item()
 
-        val client = HttpClient(CIO)
-        runBlocking {
+        if(user.loggedIn(server)) {
+            val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm(
-                url = "https://inventory.ryanm.app/",
+                url = server.requestUrl(),
                 formParameters = Parameters.build {
-                    append("token", connectionId)
-                    append("requestType", "item")
+                    append("token", user.token)
+                    append("type", "item")
                     append("barcode", barcode)
                 }
             )
             val responseBody: String = response.bodyAsText()
-            Log.i("Response: ", responseBody)
-            // @TODO: Uncomment this once server side code generates data as JSON
-            //json = JSONTokener(response.toString()).nextValue() as JSONObject
+
+            json = JSONTokener(responseBody).nextValue() as JSONObject
+            item.id = json.getInt("id")
+            item.description = json.getString("description")
+            item.minimum = json.getInt("minimum")
+            item.maximum = json.getInt("maximum")
+            item.quantity = json.getInt("quantity")
+            for(i in 0 until json.getJSONArray("barcodes").length())
+            {
+                item.barcodes[i] = json.getJSONArray("barcodes")[i].toString()
+            }
         }
 
         return item

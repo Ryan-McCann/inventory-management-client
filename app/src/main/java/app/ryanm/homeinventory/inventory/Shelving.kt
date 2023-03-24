@@ -1,8 +1,8 @@
 package app.ryanm.homeinventory.inventory
 
-import android.util.Log
+import app.ryanm.homeinventory.network.Server
+import app.ryanm.homeinventory.network.User
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
@@ -11,34 +11,49 @@ import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.json.JSONTokener
 
-class Shelving (connectionId: String = "") {
-    var connectionId: String = connectionId
+class Shelving {
+    suspend fun getShelfByLabel(label: String, server: Server, user: User) : Shelf {
+        val shelf = Shelf()
+        var json: JSONObject
 
-    fun getShelfByLabel(label: String) : Shelf {
-        var shelf: Shelf = Shelf()
+        if(user.loggedIn(server)) {
+            val client = HttpClient(CIO)
 
-
+            val response: HttpResponse = client.submitForm(
+                url = server.requestUrl(),
+                formParameters = Parameters.build {
+                    append("token", user.token)
+                    append("type", "shelf")
+                    append("label", label)
+                }
+            )
+            json = JSONTokener(response.bodyAsText()).nextValue() as JSONObject
+            shelf.id = json.getInt("id")
+            shelf.label = json.getString("label")
+            shelf.barcode = json.getString("barcode")
+        }
 
         return shelf
     }
 
-    fun getShelfByBarcode(barcode: String) : Shelf {
-        var shelf: Shelf = Shelf()
+    suspend fun getShelfByBarcode(barcode: String, server: Server, user: User) : Shelf {
+        val shelf = Shelf()
         val json: JSONObject
 
-        val client = HttpClient(CIO)
-        runBlocking {
+        if(user.loggedIn(server)) {
+            val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm(
-                url = "https://inventory.ryanm.app/",
+                url = server.requestUrl(),
                 formParameters = Parameters.build {
-                    append("token", connectionId)
-                    append("requestType", "shelf")
+                    append("token", user.token)
+                    append("type", "shelf")
                     append("barcode", barcode)
                 }
             )
-            Log.i("Response: ", response.bodyAsText())
-            // @TODO: Uncomment this once server generates data as json
-            //json = JSONTokener(response.toString()).nextValue() as JSONObject
+            json = JSONTokener(response.bodyAsText()).nextValue() as JSONObject
+            shelf.id = json.getInt("id")
+            shelf.label = json.getString("label")
+            shelf.barcode = json.getString("barcode")
         }
 
         return shelf

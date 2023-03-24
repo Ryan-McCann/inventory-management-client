@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import app.ryanm.homeinventory.R
+import app.ryanm.homeinventory.inventory.Shelving
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -35,7 +36,14 @@ class ShelvesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_shelves, container, false)
+        val view = inflater.inflate(R.layout.fragment_shelves, container, false)
+
+        // Load existing shelves from server
+        val shelving: Shelving
+
+        // Set onClick handler for add shelf button
+
+        return view
     }
 
     companion object {

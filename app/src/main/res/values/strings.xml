@@ -7,12 +7,22 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="menu_scan">Scan...</string>
+    <string name="menu_scan">Scan…</string>
     <string name="menu_inventory">Inventory</string>
     <string name="menu_shelves">Shelves</string>
     <string name="menu_shopping_list">Shopping List</string>
+    <string name="menu_login">Login</string>
 
-    <string name="scan_barcode">Scan a shelf to view its contents or scan an item...</string>
+    <string name="scan_barcode">Scan a shelf to view its contents or scan an item…</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="test_test">Test Test</string>
+
+    <string name="server">server</string>
+    <string name="email">email</string>
+    <string name="token">token</string>
+
+    <string name="signed_out">Signed Out</string>
+    <string name="down_arrow">▼</string>
+    <string name="up_arrow">▲</string>
+    <string name="sign_out">Sign Out</string>
 </resources>
