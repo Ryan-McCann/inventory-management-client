@@ -5,6 +5,8 @@ import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 
+typealias BarcodeListener = (barcode: String) -> Unit
+
 class BarcodeScanner (private val barcodeListener: BarcodeListener) :ImageAnalysis.Analyzer {
     private val scanner = BarcodeScanning.getClient()
 
@@ -16,7 +18,7 @@ class BarcodeScanner (private val barcodeListener: BarcodeListener) :ImageAnalys
             scanner.process(image)
                 .addOnSuccessListener { barcodes ->
                     for (barcode in barcodes){
-                        barcodeListener(barcode.rawValue ?: "")
+                        barcodeListener(barcode.displayValue ?: "")
                     }
                 }
                 .addOnFailureListener {

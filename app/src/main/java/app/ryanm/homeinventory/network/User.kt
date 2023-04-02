@@ -6,7 +6,7 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 
-class User (var username:String = "", var token:String = "") {
+class User (var username:String = "", var token:String = "", var loggedIn:Boolean = false) {
     suspend fun register(username: String, password: String, server: Server): String {
         var result = "success"
 
@@ -41,24 +41,38 @@ class User (var username:String = "", var token:String = "") {
 
        if(response.bodyAsText() == "user-disabled" || response.bodyAsText() == "invalid-password" || response.bodyAsText() == "invalid-user") {
            result = response.bodyAsText().trimEnd()
+           loggedIn = false
        } else {
            token = response.bodyAsText().trimEnd()
            this@User.username = username
+           loggedIn = true
        }
 
         return result
     }
 
-    suspend fun loggedIn(server: Server): Boolean {
+    suspend fun login(server: Server): String {
+        var result = "success"
+
         val client = HttpClient(CIO)
         val response: HttpResponse = client.submitForm(
             url = server.loginUrl(),
             formParameters = Parameters.build {
+                append("email", username)
                 append("token", token)
+                append("result", "text")
             }
         )
 
-        return response.bodyAsText().trimEnd() == username
+        loggedIn = response.bodyAsText().trimEnd() == username
+
+        result = response.bodyAsText().trimEnd()
+
+        return result
+    }
+
+    suspend fun loggedIn(server: Server): Boolean {
+        return loggedIn
     }
 
     suspend fun signout(server: Server) {

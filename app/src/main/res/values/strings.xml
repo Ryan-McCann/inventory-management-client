@@ -25,4 +25,14 @@
     <string name="down_arrow">▼</string>
     <string name="up_arrow">▲</string>
     <string name="sign_out">Sign Out</string>
+    <string name="maximum">Maximum:</string>
+    <string name="quantity">Quantity:</string>
+    <string name="description">Description:</string>
+    <string name="barcodes">Barcodes</string>
+    <string name="shelves">Shelves</string>
+    <string name="update_item">Update Item</string>
+
+    <string name="quant_val">x%1$s</string>
+    <string name="deleteSymbol">✖</string>
+    <string name="print_barcodes">Print Barcodes...</string>
 </resources>

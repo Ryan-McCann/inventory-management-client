@@ -20,12 +20,12 @@
             android:title="@string/menu_scan" />
         <item
             android:visible="false"
-            android:id="@+id/inventoryFragment"
-            android:title="@string/menu_inventory" />
-        <item
-            android:visible="false"
             android:id="@+id/shelvesFragment"
             android:title="@string/menu_shelves" />
+        <item
+            android:visible="false"
+            android:id="@+id/inventoryFragment"
+            android:title="@string/menu_inventory" />
         <item
             android:id="@+id/shoppingList"
             android:title="@string/menu_shopping_list"/>

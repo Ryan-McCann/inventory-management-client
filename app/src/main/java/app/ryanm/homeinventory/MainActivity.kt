@@ -16,8 +16,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.ryanm.homeinventory.databinding.ActivityMainBinding
-import app.ryanm.homeinventory.inventory.Item
-import app.ryanm.homeinventory.inventory.Shelf
 import app.ryanm.homeinventory.network.Network
 import app.ryanm.homeinventory.network.Server
 import app.ryanm.homeinventory.network.User
@@ -25,7 +23,7 @@ import app.ryanm.homeinventory.ui.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), Network, IFragComm {
+class MainActivity : AppCompatActivity(), Network {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -59,6 +57,8 @@ class MainActivity : AppCompatActivity(), Network, IFragComm {
 
         navMenu = navView.menu
 
+        navView.setCheckedItem(R.id.scanFragment)
+
         val loginLayout = navView.getHeaderView(0).findViewById<LinearLayout>(R.id.loginLayout)
 
         // When clicking header, change menu to login/sign-out options and hide other menu items
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), Network, IFragComm {
                 expandView.text = getString(R.string.up_arrow)
 
                 // if user is signed in
-                if(user.token != "") {
+                if(user.loggedIn) {
                     navMenu.findItem(R.id.loginFragment).isVisible = false
                     navMenu.findItem(R.id.signoutLink).isVisible = true
                 } else { // if user isn't signed in
@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity(), Network, IFragComm {
                 navMenu.findItem(R.id.signoutLink).isVisible = false
 
                 // if user is signed in
-                if(user.token != "") {
+                if(user.loggedIn) {
                     navMenu.findItem(R.id.scanFragment).isVisible = true
                     navMenu.findItem(R.id.inventoryFragment).isVisible = true
                     navMenu.findItem(R.id.shelvesFragment).isVisible = true
@@ -146,6 +146,10 @@ class MainActivity : AppCompatActivity(), Network, IFragComm {
         }
 
         lifecycleScope.launch (context = Dispatchers.Main) {
+            if(server.connected()) {
+                user.login(server)
+            }
+
             if(server.connected() && user.loggedIn(server) ) {
                 navMenu.findItem(R.id.scanFragment).isVisible = true
                 navMenu.findItem(R.id.inventoryFragment).isVisible = true
@@ -181,7 +185,6 @@ class MainActivity : AppCompatActivity(), Network, IFragComm {
     override fun login(email: String, password: String, url: String) {
         lifecycleScope.launch (context = Dispatchers.Main) {
             if(server.connect(url)) {
-
                 when (user.login(email, password, server)) {
                     "invalid-user" -> {
                         val loginFragment =
@@ -263,15 +266,5 @@ class MainActivity : AppCompatActivity(), Network, IFragComm {
                 registerFragment.registerError("invalid-server")
             }
         }
-    }
-
-    override fun setShelfFragment(shelf: Shelf) {
-        val shelfFragment = supportFragmentManager.findFragmentById(R.id.shelfFragment) as ShelfFragment
-        shelfFragment.setShelf(shelf)
-    }
-
-    override fun setItemFragment(item: Item) {
-        val itemFragment = supportFragmentManager.findFragmentById(R.id.itemFragment) as ItemFragment
-        itemFragment.setItem(item)
     }
 }

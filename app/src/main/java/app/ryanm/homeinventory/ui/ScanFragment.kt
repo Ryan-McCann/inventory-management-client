@@ -17,6 +17,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.ryanm.homeinventory.R
@@ -30,18 +31,14 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
-typealias BarcodeListener = (barcode: String) -> Unit
-
 class ScanFragment : Fragment() {
     private var processingBarcode = AtomicBoolean(false)
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var network: Network
-    private lateinit var fragComm: IFragComm
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         network = context as Network
-        fragComm = context as IFragComm
     }
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,7 +120,7 @@ class ScanFragment : Fragment() {
     }
 
     private fun searchBarcode(barcode: String) {
-        lifecycleScope.launch (context = Dispatchers.IO) {
+        lifecycleScope.launch (context = Dispatchers.Main) {
             // check if barcode is a shelf label and pull up the matching shelf
             val shelving = Shelving()
             val shelf: Shelf =
@@ -132,8 +129,10 @@ class ScanFragment : Fragment() {
             if (shelf.id > -1) {
                 // open shelf fragment using shelf id
                 val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
-                navController?.navigate(R.id.action_scanFragment_to_shelfFragment)
-                fragComm.setShelfFragment(shelf)
+
+                val bundle = bundleOf("shelf" to shelf)
+
+                navController?.navigate(R.id.action_scanFragment_to_shelfFragment, bundle)
             }
             // if shelf id is -1, the shelf does not exist. Check if UPC instead
             else if (shelf.id == -1) {
@@ -144,10 +143,16 @@ class ScanFragment : Fragment() {
                 if (item.id > -1) {
                     // Open ItemFragment
                     val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
-                    navController?.navigate(R.id.action_scanFragment_to_itemFragment)
-                    fragComm.setItemFragment(item)
+
+                    val bundle = bundleOf("item" to item)
+
+                    navController?.navigate(R.id.action_scanFragment_to_itemFragment, bundle)
                 } else {
-                    // Open NewItemFragment
+                    val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
+
+                    val bundle = bundleOf("barcode" to barcode)
+
+                    navController?.navigate(R.id.action_scanFragment_to_newItemFragment, bundle)
                 }
             }
         }

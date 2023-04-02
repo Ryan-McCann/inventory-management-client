@@ -1,68 +1,102 @@
 package app.ryanm.homeinventory.ui
 
+import android.content.Context
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.os.bundleOf
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import app.ryanm.homeinventory.R
 import app.ryanm.homeinventory.inventory.Shelving
+import app.ryanm.homeinventory.network.Network
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class ShelvesFragment : Fragment(), MenuProvider {
+    private lateinit var network: Network
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ShelvesFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class ShelvesFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        network = context as Network
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_shelves, container, false)
 
+        val shelvesScrollLayout = view.findViewById<LinearLayout>(R.id.shelvesScrollLayout)
+
         // Load existing shelves from server
-        val shelving: Shelving
+        lifecycleScope.launch {
+            val shelving = Shelving()
+            val shelves = shelving.getShelves(network.getServer(), network.getUser())
+
+            for(shelf in shelves) {
+                val shelfRow = inflater.inflate(R.layout.shelf_row, null)
+                val shelfLabel = shelfRow.findViewById<TextView>(R.id.shelfRowLabel)
+                val deleteShelfButton = shelfRow.findViewById<TextView>(R.id.deleteShelfButton)
+
+                shelfLabel.text = shelf.label
+
+                shelfRow.setOnClickListener {
+                    val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
+                    val bundle = bundleOf("shelf" to shelf)
+                    navController?.navigate(R.id.action_shelvesFragment_to_shelfFragment, bundle)
+                }
+
+                deleteShelfButton.setOnClickListener{
+                    lifecycleScope.launch {
+                        shelving.deleteShelf(shelf, network.getServer(), network.getUser())
+                        val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
+                        navController?.navigate(R.id.shelvesFragment)
+                    }
+                }
+
+                shelvesScrollLayout.addView(shelfRow)
+            }
+        }
 
         // Set onClick handler for add shelf button
+        val addShelfButton = view.findViewById<Button>(R.id.addShelfButton)
+        addShelfButton.setOnClickListener {
+            val editShelfLabel = view.findViewById<EditText>(R.id.editShelfLabel)
+            if(editShelfLabel.text.isNotEmpty() && editShelfLabel.text.isNotBlank()) {
+                lifecycleScope.launch {
+                    val shelving = Shelving()
+                    shelving.createShelf(editShelfLabel.text.toString(), network.getServer(), network.getUser())
+
+                    val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
+                    navController?.navigate(R.id.shelvesFragment)
+                }
+            }
+        }
 
         return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ShelvesFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ShelvesFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.options, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if(menuItem.title == getString(R.string.print_barcodes)) {
+            val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
+
+            navController?.navigate(R.id.action_shelvesFragment_to_printShelvesFragment)
+        }
+        return true
     }
 }

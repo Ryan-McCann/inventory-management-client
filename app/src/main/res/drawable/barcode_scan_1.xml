@@ -1,7 +1,6 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="360dp"
     android:height="360dp"
-    android:background="?android:selectableItemBackground"
     android:viewportWidth="1024"
     android:viewportHeight="1024">
   <path
