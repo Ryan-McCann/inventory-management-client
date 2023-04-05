@@ -1,11 +1,12 @@
-package app.ryanm.homeinventory
+package app.ryanm.homeinventory.barcode
 
 import android.graphics.Bitmap
 import androidx.annotation.ColorInt
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.oned.Code128Writer
+import com.google.zxing.oned.Code39Writer
 
-class Barcode (val barcode: String){
+class Barcode (val barcode: String, val label: String){
     fun generate(width: Int, height: Int, @ColorInt barcodeColor: Int, @ColorInt backgroundColor: Int): Bitmap {
         val bitmatrix = Code128Writer().encode(barcode, BarcodeFormat.CODE_128, width, height)
 

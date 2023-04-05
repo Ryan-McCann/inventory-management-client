@@ -17,6 +17,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import app.ryanm.homeinventory.R
+import app.ryanm.homeinventory.barcode.BarcodeScanner
 import app.ryanm.homeinventory.network.Network
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

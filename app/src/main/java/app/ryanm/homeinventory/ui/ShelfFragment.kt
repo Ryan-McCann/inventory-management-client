@@ -64,7 +64,7 @@ class ShelfFragment : Fragment() {
 
                 // listen for clicks to adjust quantity
                 quantityView.setOnClickListener {
-                    val quantityDialog = QuantyDialogFragment()
+                    val quantityDialog = QuantityDialogFragment()
                     quantityDialog.show(childFragmentManager, "")
                     quantityDialog.setOnQuantityEnteredListener {
                         val newQuantity = it

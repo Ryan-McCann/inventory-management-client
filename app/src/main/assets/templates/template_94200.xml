@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<page barcodeHeight="27" barcodeWidth="72" cells="30" height="792" width="612" textSize="24sp">
+    <cell id="0" barX="108" barY="60" textX="108" textY="84"/>
+    <cell id="1" barX="306" barY="60" textX="306" textY="84" />
+    <cell id="2" barX="506" barY="60" textX="506" textY="84"/>
+
+    <cell id="3" barX="108" barY="132" textX="108" textY="156" />
+    <cell id="4" barX="306" barY="132" textX="306" textY="156" />
+    <cell id="5" barX="506" barY="132" textX="506" textY="156" />
+
+    <cell id="6" barX="108" barY="204" textX="108" textY="228" />
+    <cell id="7" barX="306" barY="204" textX="306" textY="228" />
+    <cell id="8" barX="506" barY="204" textX="506" textY="228"/>
+
+    <cell id="9" barX="108" barY="276" textX="108" textY="300" />
+    <cell id="10" barX="306" barY="276" textX="306" textY="300" />
+    <cell id="11" barX="506" barY="276" textX="506" textY="300" />
+
+    <cell id="12" barX="108" barY="348" textX="108" textY="372" />
+    <cell id="13" barX="306" barY="348" textX="306" textY="372" />
+    <cell id="14" barX="506" barY="348" textX="506" textY="372" />
+
+    <cell id="15" barX="108" barY="420" textX="108" textY="444" />
+    <cell id="16" barX="306" barY="420" textX="306" textY="444" />
+    <cell id="17" barX="506" barY="420" textX="506" textY="444" />
+
+    <cell id="18" barX="108" barY="492" textX="108" textY="516" />
+    <cell id="19" barX="306" barY="492" textX="306" textY="516" />
+    <cell id="20" barX="506" barY="492" textX="506" textY="516" />
+
+    <cell id="21" barX="108" barY="564" textX="108" textY="588" />
+    <cell id="22" barX="306" barY="564" textX="306" textY="588" />
+    <cell id="23" barX="506" barY="564" textX="506" textY="588" />
+
+    <cell id="24" barX="108" barY="636" textX="108" textY="660" />
+    <cell id="25" barX="306" barY="636" textX="306" textY="660" />
+    <cell id="26" barX="506" barY="636" textX="506" textY="660" />
+
+    <cell id="27" barX="108" barY="708" textX="108" textY="732" />
+    <cell id="28" barX="306" barY="708" textX="306" textY="732" />
+    <cell id="29" barX="506" barY="708" textX="506" textY="732" />
+</page>

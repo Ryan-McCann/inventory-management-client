@@ -1,4 +1,4 @@
-package app.ryanm.homeinventory.ui
+package app.ryanm.homeinventory.barcode
 
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy

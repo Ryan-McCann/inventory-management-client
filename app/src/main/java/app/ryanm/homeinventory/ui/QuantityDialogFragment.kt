@@ -10,7 +10,7 @@ import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.DialogFragment
 import app.ryanm.homeinventory.R
 
-class QuantyDialogFragment: DialogFragment() {
+class QuantityDialogFragment: DialogFragment() {
     private var listener: ((Int)->Unit)? = null
 
     override fun onCreateView(

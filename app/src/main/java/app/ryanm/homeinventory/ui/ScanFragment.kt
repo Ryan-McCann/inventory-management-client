@@ -21,6 +21,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.ryanm.homeinventory.R
+import app.ryanm.homeinventory.barcode.BarcodeScanner
 import app.ryanm.homeinventory.inventory.Inventory
 import app.ryanm.homeinventory.inventory.Shelf
 import app.ryanm.homeinventory.inventory.Shelving

@@ -1,26 +1,33 @@
 package app.ryanm.homeinventory.ui
 
 import android.content.Context
+import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
+import android.print.PrintAttributes
+import android.print.PrintManager
+import android.print.pdf.PrintedPdfDocument
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.allViews
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import app.ryanm.homeinventory.Barcode
+import app.ryanm.homeinventory.PdfPrintAdapter
+import app.ryanm.homeinventory.barcode.Barcode
 import app.ryanm.homeinventory.R
+import app.ryanm.homeinventory.barcode.LabelTemplate
 import app.ryanm.homeinventory.inventory.Shelving
 import app.ryanm.homeinventory.network.Network
-import com.google.zxing.oned.Code128Writer
 import kotlinx.coroutines.launch
+import org.xmlpull.v1.XmlPullParserFactory
+import java.io.File
+import java.io.FileOutputStream
 
 class PrintShelvesFragment : Fragment() {
     private lateinit var network: Network
@@ -38,7 +45,7 @@ class PrintShelvesFragment : Fragment() {
 
         val shelving = Shelving()
 
-        var checkedBarcodeState:MutableMap<String, Boolean> = mutableMapOf()
+        var checkedBarcodeState:MutableMap<Pair<String, String>, Boolean> = mutableMapOf()
 
         lifecycleScope.launch {
             val shelves = shelving.getShelves(network.getServer(), network.getUser())
@@ -48,11 +55,11 @@ class PrintShelvesFragment : Fragment() {
                 val shelfRow = inflater.inflate(R.layout.print_shelf_row, null)
                 val printShelfLabel = shelfRow.findViewById<TextView>(R.id.printShelfLabelView)
 
-                checkedBarcodeState[shelf.barcode] = false
+                checkedBarcodeState[Pair(shelf.barcode, shelf.label)] = false
 
                 val printShelfCheckBox = shelfRow.findViewById<CheckBox>(R.id.printShelfCheckBox)
                 printShelfCheckBox.setOnCheckedChangeListener { _, b ->
-                    checkedBarcodeState[shelf.barcode] = b
+                    checkedBarcodeState[Pair(shelf.barcode, shelf.label)] = b
                 }
 
                 printShelfLabel.text = shelf.label
@@ -69,13 +76,28 @@ class PrintShelvesFragment : Fragment() {
         printButton.setOnClickListener {
             for (barcodeState in checkedBarcodeState) {
                 if (barcodeState.value) {
-                    barcodes.add(Barcode(barcodeState.key))
+                    barcodes.add(Barcode(barcodeState.key.first, barcodeState.key.second))
                 }
             }
 
-            for(barcode in barcodes) {
+            val image = ImageView(requireContext())
+            image.setImageBitmap(barcodes[0].generate(200, 200, ContextCompat.getColor(requireContext(), R.color.black), ContextCompat.getColor(requireContext(), R.color.white)))
+            val printShelfLayout = view.findViewById<LinearLayout>(R.id.printShelvesLayout)
+            printShelfLayout.addView(image)
 
-            }
+            val xmlFile = requireContext().assets.open("templates/template_94200.xml")
+            val xmlParser = XmlPullParserFactory.newInstance().newPullParser()
+            xmlParser.setInput(xmlFile, null)
+            val label = LabelTemplate(xmlParser)
+
+            val document = label.generateLabels(barcodes, requireContext().getColor(R.color.black), requireContext().getColor(R.color.white))
+
+            val printManager = requireContext().getSystemService(Context.PRINT_SERVICE) as PrintManager
+            val jobName = "${requireContext().getString(R.string.app_name)} Document"
+
+            printManager.print(jobName, PdfPrintAdapter(requireContext(), document), null)
+
+            barcodes.clear()
         }
 
         return view

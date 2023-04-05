@@ -2,6 +2,7 @@ package app.ryanm.homeinventory
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -35,6 +36,9 @@ class MainActivity : AppCompatActivity(), Network {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.i("Black: ", getColor(R.color.black).toString())
+        Log.i("White: ", getColor(R.color.white).toString())
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -142,6 +146,10 @@ class MainActivity : AppCompatActivity(), Network {
                 server.url = serverString
                 user.username = email
                 user.token = token
+            } else {
+                server.url = ""
+                user.username = ""
+                user.token = ""
             }
         }
 
