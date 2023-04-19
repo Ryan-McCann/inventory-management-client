@@ -1,2 +1,2 @@
-# inventory-management-client
-Home Inventory Client
+# Home Inventory Client
+
