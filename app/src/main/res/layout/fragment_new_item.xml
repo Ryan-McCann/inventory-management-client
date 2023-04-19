@@ -31,8 +31,8 @@
         android:layout_height="wrap_content"
         android:text="Minimum:"
         app:layout_constraintBottom_toBottomOf="@+id/editNewMin"
-        app:layout_constraintTop_toTopOf="@+id/editNewMin"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/editNewMin" />
 
     <EditText
         android:id="@+id/editNewMin"
@@ -51,8 +51,8 @@
         android:layout_height="wrap_content"
         android:text="Maximum:"
         app:layout_constraintBottom_toBottomOf="@+id/editNewMax"
-        app:layout_constraintTop_toTopOf="@+id/editNewMax"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/editNewMax" />
 
     <EditText
         android:id="@+id/editNewMax"
@@ -71,8 +71,8 @@
         android:layout_height="wrap_content"
         android:text="UPC:"
         app:layout_constraintBottom_toBottomOf="@+id/editNewUPC"
-        app:layout_constraintTop_toTopOf="@+id/editNewUPC"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/editNewUPC" />
 
     <EditText
         android:id="@+id/editNewUPC"

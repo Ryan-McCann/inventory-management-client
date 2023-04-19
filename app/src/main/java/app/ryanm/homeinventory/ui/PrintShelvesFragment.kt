@@ -1,21 +1,13 @@
 package app.ryanm.homeinventory.ui
 
 import android.content.Context
-import android.content.res.Resources
 import android.os.Bundle
-import android.print.PrintAttributes
 import android.print.PrintManager
-import android.print.pdf.PrintedPdfDocument
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import app.ryanm.homeinventory.PdfPrintAdapter
@@ -26,8 +18,6 @@ import app.ryanm.homeinventory.inventory.Shelving
 import app.ryanm.homeinventory.network.Network
 import kotlinx.coroutines.launch
 import org.xmlpull.v1.XmlPullParserFactory
-import java.io.File
-import java.io.FileOutputStream
 
 class PrintShelvesFragment : Fragment() {
     private lateinit var network: Network
@@ -45,14 +35,14 @@ class PrintShelvesFragment : Fragment() {
 
         val shelving = Shelving()
 
-        var checkedBarcodeState:MutableMap<Pair<String, String>, Boolean> = mutableMapOf()
+        val checkedBarcodeState:MutableMap<Pair<String, String>, Boolean> = mutableMapOf()
 
         lifecycleScope.launch {
             val shelves = shelving.getShelves(network.getServer(), network.getUser())
 
             for(shelf in shelves) {
                 val printShelfLayout = view.findViewById<LinearLayout>(R.id.printShelvesLayout)
-                val shelfRow = inflater.inflate(R.layout.print_shelf_row, null)
+                val shelfRow = inflater.inflate(R.layout.print_shelf_row, container, false)
                 val printShelfLabel = shelfRow.findViewById<TextView>(R.id.printShelfLabelView)
 
                 checkedBarcodeState[Pair(shelf.barcode, shelf.label)] = false
@@ -70,6 +60,20 @@ class PrintShelvesFragment : Fragment() {
 
         val templateSpinner = view.findViewById<Spinner>(R.id.templateSpinner)
 
+        val templateStrings = requireContext().assets.list("templates/")
+
+        if (templateStrings != null) {
+            for(i in templateStrings.indices) {
+                val periodIndex = templateStrings[i].lastIndexOf('.')
+                if(periodIndex != -1) {
+                    templateStrings[i] = templateStrings[i].substring(0, periodIndex)
+                }
+            }
+
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, templateStrings)
+            templateSpinner.adapter = adapter
+        }
+
         val barcodes = ArrayList<Barcode>()
 
         val printButton = view.findViewById<Button>(R.id.printButton)
@@ -85,7 +89,9 @@ class PrintShelvesFragment : Fragment() {
             val printShelfLayout = view.findViewById<LinearLayout>(R.id.printShelvesLayout)
             printShelfLayout.addView(image)
 
-            val xmlFile = requireContext().assets.open("templates/template_94200.xml")
+            val selectedTemplate = templateSpinner.selectedItem.toString() + ".xml"
+
+            val xmlFile = requireContext().assets.open("templates/$selectedTemplate")
             val xmlParser = XmlPullParserFactory.newInstance().newPullParser()
             xmlParser.setInput(xmlFile, null)
             val label = LabelTemplate(xmlParser)

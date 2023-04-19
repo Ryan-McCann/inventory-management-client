@@ -54,7 +54,7 @@ class ShelfFragment : Fragment() {
             val items: ArrayList<Item> = shelving.getItemsByShelf(shelf, network.getServer(), network.getUser())
 
             for(item in items) {
-                val layout = inflater.inflate(R.layout.shelf_item_row, null) as ConstraintLayout
+                val layout = inflater.inflate(R.layout.shelf_item_row, container, false) as ConstraintLayout
 
                 val itemView = layout.findViewById<TextView>(R.id.itemDescView)
                 itemView.text = item.description
@@ -93,7 +93,26 @@ class ShelfFragment : Fragment() {
                 // listen for clicks to move item to another shelf
                 val moveButton = layout.findViewById<Button>(R.id.moveItemButton)
                 moveButton.setOnClickListener {
+                    var itemQuantity = 0
 
+                    for(shelfQuantity in item.shelfQuantities)
+                        if(shelfQuantity.label == shelf.label)
+                            itemQuantity = shelfQuantity.itemQuantity
+
+                    val moveDialog = MoveDialogFragment(itemQuantity)
+                    moveDialog.show(childFragmentManager, "")
+                    moveDialog.setOnShelfEnteredListener { shelfId, quantity ->
+                        lifecycleScope.launch {
+                            val shelf2 = shelving.getShelfById(shelfId, network.getServer(), network.getUser())
+                            shelving.removeItemFromShelfByBarcode(item.barcodes[0], quantity, shelf, network.getServer(), network.getUser())
+                            shelving.addItemToShelfByBarcode(item.barcodes[0], quantity, shelf2, network.getServer(), network.getUser())
+
+                            val bundle = bundleOf("shelf" to shelf)
+                            val navController = parentFragmentManager.primaryNavigationFragment?.findNavController()
+                            navController?.popBackStack()
+                            navController?.navigate(R.id.shelfFragment, bundle)
+                        }
+                    }
                 }
 
                 // listen for clicks to remove item from shelf

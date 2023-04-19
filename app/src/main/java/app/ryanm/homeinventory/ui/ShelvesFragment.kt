@@ -45,7 +45,7 @@ class ShelvesFragment : Fragment(), MenuProvider {
             val shelves = shelving.getShelves(network.getServer(), network.getUser())
 
             for(shelf in shelves) {
-                val shelfRow = inflater.inflate(R.layout.shelf_row, null)
+                val shelfRow = inflater.inflate(R.layout.shelf_row, container, false)
                 val shelfLabel = shelfRow.findViewById<TextView>(R.id.shelfRowLabel)
                 val deleteShelfButton = shelfRow.findViewById<TextView>(R.id.deleteShelfButton)
 
@@ -97,6 +97,6 @@ class ShelvesFragment : Fragment(), MenuProvider {
 
             navController?.navigate(R.id.action_shelvesFragment_to_printShelvesFragment)
         }
-        return true
+        return false
     }
 }

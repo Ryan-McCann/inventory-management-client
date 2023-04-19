@@ -38,8 +38,7 @@ class NewItemFragment : Fragment() {
         val updateButton = view.findViewById<Button>(R.id.updateNewItemButton)
         val switchToAliasView = view.findViewById<TextView>(R.id.switchToAliasView)
 
-        var barcode: String = ""
-        barcode = arguments?.getString("barcode").toString()
+        val barcode = arguments?.getString("barcode").toString()
 
         editNewUPC.setText(barcode)
 

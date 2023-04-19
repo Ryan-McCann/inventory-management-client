@@ -9,9 +9,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import app.ryanm.homeinventory.R
 import app.ryanm.homeinventory.network.Network
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
     private lateinit var network: Network
@@ -41,7 +43,42 @@ class LoginFragment : Fragment() {
             if( !(url.startsWith("https://") || url.startsWith("http://")))
                 url = "https://$url"
 
-            network.login(emailEdit.text.toString(), passEdit.text.toString(), url)
+            lifecycleScope.launch{
+                val loginErrorView = view.findViewById<TextView>(R.id.loginErrorView)
+
+                if(network.getServer().connect(url)) {
+                    when(val result = network.getUser().login(emailEdit.text.toString(), passEdit.text.toString(), network.getServer())) {
+                        "user-disabled" -> {
+                            loginErrorView.visibility = View.VISIBLE
+                            loginErrorView.text = "Error: User is disabled."
+                        }
+                        "invalid-user" -> {
+                            loginErrorView.visibility = View.VISIBLE
+                            loginErrorView.text = "Error: Invalid user."
+                        }
+                        "invalid-password" -> {
+                            loginErrorView.visibility = View.VISIBLE
+                            loginErrorView.text = "Error: Incorrect password."
+                        }
+                        else -> {
+                            if (network.getUser().loggedIn) {
+                                val sharedPrefs = requireActivity().getPreferences(Context.MODE_PRIVATE)
+                                with(sharedPrefs.edit()) {
+                                    putString(getString(R.string.server), network.getServer().url)
+                                    putString(getString(R.string.email), network.getUser().username)
+                                    putString(getString(R.string.token), network.getUser().token)
+                                    apply()
+                                }
+
+                                view.findNavController().navigate(R.id.action_loginFragment_to_scanFragment)
+                            }
+                        }
+                    }
+                } else {
+                    loginErrorView.visibility = View.VISIBLE
+                    loginErrorView.text = "Error: Invalid Server."
+                }
+            }
         }
 
         registerLinkView.setOnClickListener {
@@ -50,22 +87,5 @@ class LoginFragment : Fragment() {
         }
 
         return view
-    }
-
-    fun loginError(error: String) {
-        when(error) {
-            "invalid-user" -> {
-
-            }
-            "invalid-password" -> {
-
-            }
-            "user-disabled" -> {
-
-            }
-            "invalid-server" -> {
-
-            }
-        }
     }
 }

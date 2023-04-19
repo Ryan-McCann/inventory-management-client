@@ -40,7 +40,8 @@ class AssociateItemFragment : Fragment() {
             val items = inventory.getItems(network.getServer(), network.getUser())
 
             for(item in items) {
-                val itemDescriptView = TextView(activity)
+                val itemLayout = inflater.inflate(R.layout.assoc_item_row, container, false)
+                val itemDescriptView = itemLayout.findViewById<TextView>(R.id.assocItemTextView)
                 itemDescriptView.text = item.description
                 itemDescriptView.isClickable = true
                 itemDescriptView.setOnClickListener {
@@ -51,7 +52,7 @@ class AssociateItemFragment : Fragment() {
                         navController?.navigate(R.id.action_associateItemFragment_to_inventoryFragment)
                     }
                 }
-                assocItemLayout.addView(itemDescriptView)
+                assocItemLayout.addView(itemLayout)
             }
         }
         createItemLink.setOnClickListener {

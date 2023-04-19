@@ -1,6 +1,5 @@
 package app.ryanm.homeinventory.inventory
 
-import android.util.Log
 import app.ryanm.homeinventory.network.Server
 import app.ryanm.homeinventory.network.User
 import io.ktor.client.*
@@ -18,7 +17,7 @@ class Inventory {
         val json: JSONObject
         val item = Item()
 
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm(
                 url = server.requestUrl(),
@@ -41,7 +40,14 @@ class Inventory {
             }
 
             for(i in 0 until json.getJSONArray("shelves").length()) {
-                item.shelfIds.add(json.getJSONArray("shelves")[i].toString().toInt())
+                val shelfJSON:JSONObject = json.getJSONArray("shelves")[i] as JSONObject
+
+                val shelfId = shelfJSON.getInt("id")
+                val shelfLabel = shelfJSON.getString("label")
+                val shelfBarcode = shelfJSON.getString("barcode")
+                val itemQuantity = shelfJSON.getInt("item_quantity")
+
+                item.shelfQuantities.add(ShelfQuantity(shelfId, shelfLabel, shelfBarcode, itemQuantity))
             }
         }
 
@@ -52,7 +58,7 @@ class Inventory {
         val json: JSONObject
         val item = Item()
 
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm(
                 url = server.requestUrl(),
@@ -75,7 +81,14 @@ class Inventory {
             }
 
             for(i in 0 until json.getJSONArray("shelves").length()) {
-                item.shelfIds.add(json.getJSONArray("shelves")[i].toString().toInt())
+                val shelfJSON:JSONObject = json.getJSONArray("shelves")[i] as JSONObject
+
+                val shelfId = shelfJSON.getInt("id")
+                val shelfLabel = shelfJSON.getString("label")
+                val shelfBarcode = shelfJSON.getString("barcode")
+                val itemQuantity = shelfJSON.getInt("item_quantity")
+
+                item.shelfQuantities.add(ShelfQuantity(shelfId, shelfLabel, shelfBarcode, itemQuantity))
             }
         }
 
@@ -85,7 +98,7 @@ class Inventory {
     suspend fun getItems(server: Server, user: User): ArrayList<Item> {
         val items = ArrayList<Item>()
 
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm(
                 url = server.requestUrl(),
@@ -104,16 +117,17 @@ class Inventory {
                 item.description = itemJSON.getString("description")
                 item.minimum = itemJSON.getInt("minimum")
                 item.maximum = itemJSON.getInt("maximum")
+                item.quantity = itemJSON.getInt("quantity")
 
                 items.add(item)
             }
         }
 
-        return items;
+        return items
     }
 
     suspend fun associateItem (item: Item, barcode: String, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             client.submitForm(
                 url = server.requestUrl(),
@@ -128,7 +142,7 @@ class Inventory {
     }
 
     suspend fun removeAlias(barcode: String, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             client.submitForm(
                 url = server.requestUrl(),
@@ -142,9 +156,9 @@ class Inventory {
     }
 
     suspend fun createItem (item: Item, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
-            val response: HttpResponse = client.submitForm(
+            client.submitForm(
                 url = server.requestUrl(),
                 formParameters = Parameters.build {
                     append("token", user.token)
@@ -159,7 +173,7 @@ class Inventory {
     }
 
     suspend fun updateItem (item: Item, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             client.submitForm(
                 url = server.requestUrl(),
@@ -176,7 +190,7 @@ class Inventory {
     }
 
     suspend fun deleteItem(item: Item, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             client.submitForm(
                 url = server.requestUrl(),

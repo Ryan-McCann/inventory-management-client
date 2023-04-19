@@ -7,9 +7,18 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 
 class User (var username:String = "", var token:String = "", var loggedIn:Boolean = false) {
-    suspend fun register(username: String, password: String, server: Server): String {
-        var result = "success"
+    private var loginListener: (()->Unit)? = null
+    private var signoutListener: (()->Unit)? = null
 
+    fun setOnLoginListener(lambda: (()->Unit)) {
+        loginListener = lambda
+    }
+
+    fun setOnSignoutListener(lambda: (()->Unit)) {
+        signoutListener = lambda
+    }
+
+    suspend fun register(username: String, password: String, server: Server): String {
         val client = HttpClient(CIO)
         val response: HttpResponse = client.submitForm(
             url = server.registerUrl(),
@@ -20,9 +29,7 @@ class User (var username:String = "", var token:String = "", var loggedIn:Boolea
             }
         )
 
-        result = response.bodyAsText().trimEnd()
-
-        return result
+        return response.bodyAsText().trimEnd()
     }
 
     suspend fun login(username: String, password: String, server: Server): String {
@@ -39,21 +46,22 @@ class User (var username:String = "", var token:String = "", var loggedIn:Boolea
             }
         )
 
-       if(response.bodyAsText() == "user-disabled" || response.bodyAsText() == "invalid-password" || response.bodyAsText() == "invalid-user") {
+       if(response.bodyAsText().trimEnd() == "user-disabled"
+           || response.bodyAsText().trimEnd() == "invalid-password"
+           || response.bodyAsText().trimEnd() == "invalid-user") {
            result = response.bodyAsText().trimEnd()
            loggedIn = false
        } else {
            token = response.bodyAsText().trimEnd()
            this@User.username = username
            loggedIn = true
+           loginListener?.invoke()
        }
 
         return result
     }
 
     suspend fun login(server: Server): String {
-        var result = "success"
-
         val client = HttpClient(CIO)
         val response: HttpResponse = client.submitForm(
             url = server.loginUrl(),
@@ -66,13 +74,10 @@ class User (var username:String = "", var token:String = "", var loggedIn:Boolea
 
         loggedIn = response.bodyAsText().trimEnd() == username
 
-        result = response.bodyAsText().trimEnd()
+        if(loggedIn)
+            loginListener?.invoke()
 
-        return result
-    }
-
-    suspend fun loggedIn(server: Server): Boolean {
-        return loggedIn
+        return response.bodyAsText().trimEnd()
     }
 
     suspend fun signout(server: Server) {
@@ -83,5 +88,12 @@ class User (var username:String = "", var token:String = "", var loggedIn:Boolea
                 append("token", token)
             }
         )
+
+        username = ""
+        token = ""
+        server.url = ""
+        loggedIn = false
+
+        signoutListener?.invoke()
     }
 }

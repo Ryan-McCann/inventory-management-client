@@ -48,6 +48,13 @@
         android:inputType="textUri"
         android:paddingBottom="50sp" />
 
+    <TextView
+        android:id="@+id/loginErrorView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:visibility="visible" />
+
     <Button
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
@@ -62,4 +69,5 @@
         android:text="Register..."
         android:textAlignment="center"
         android:textSize="24sp" />
+
 </LinearLayout>

@@ -2,7 +2,6 @@ package app.ryanm.homeinventory.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.LinearLayout.HORIZONTAL
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
@@ -36,7 +34,7 @@ class ItemFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_item, container, false)
 
@@ -54,7 +52,7 @@ class ItemFragment : Fragment() {
 
         for(barcode in item.barcodes) {
             val barcodeLayout = view.findViewById<LinearLayout>(R.id.barcodeLinearLayout)
-            val layout = inflater.inflate(R.layout.inventory_barcode_row, null) as ConstraintLayout
+            val layout = inflater.inflate(R.layout.inventory_barcode_row, container, false) as ConstraintLayout
 
             val barcodeView = layout.findViewById<TextView>(R.id.inventoryBarcodeView)
             barcodeView.text = barcode
@@ -83,15 +81,13 @@ class ItemFragment : Fragment() {
 
             val shelving = Shelving()
 
-            for(shelfId in item.shelfIds) {
-                val shelf = shelving.getShelfById(shelfId, network.getServer(), network.getUser())
-                val shelfQuantity = shelving.getShelfItemQuantity(shelf, item, network.getServer(), network.getUser())
-                shelfRows.add(Pair(shelf.label, shelfQuantity))
+            for(shelf in item.shelfQuantities) {
+                shelfRows.add(Pair(shelf.label, shelf.itemQuantity))
             }
 
             for(row in shelfRows) {
                 val shelfLayout = view.findViewById<LinearLayout>(R.id.shelfLinearLayout)
-                val inventoryShelfRow = inflater.inflate(R.layout.inventory_shelf_row, null)
+                val inventoryShelfRow = inflater.inflate(R.layout.inventory_shelf_row, container, false)
                 inventoryShelfRow.isClickable = true
 
                 val itemShelfView = inventoryShelfRow.findViewById<TextView>(R.id.itemShelfView)

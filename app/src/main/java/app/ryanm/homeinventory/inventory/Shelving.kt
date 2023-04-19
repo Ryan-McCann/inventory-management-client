@@ -1,6 +1,5 @@
 package app.ryanm.homeinventory.inventory
 
-import android.util.Log
 import androidx.core.text.isDigitsOnly
 import app.ryanm.homeinventory.network.Server
 import app.ryanm.homeinventory.network.User
@@ -18,7 +17,7 @@ class Shelving {
         val shelf = Shelf()
         val json: JSONObject
 
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
 
             val response: HttpResponse = client.submitForm(
@@ -42,7 +41,7 @@ class Shelving {
         val shelf = Shelf()
         val json: JSONObject
 
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm(
                 url = server.requestUrl(),
@@ -65,7 +64,7 @@ class Shelving {
         val shelf = Shelf()
         val json: JSONObject
 
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm(
                 url = server.requestUrl(),
@@ -88,7 +87,7 @@ class Shelving {
         val shelves = ArrayList<Shelf>()
         val json: JSONArray
 
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm (
                 url = server.requestUrl(),
@@ -118,7 +117,7 @@ class Shelving {
         val items = ArrayList<Item>()
         val json: JSONArray
 
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             val response: HttpResponse = client.submitForm(
                 url = server.requestUrl(),
@@ -149,7 +148,14 @@ class Shelving {
                 val shelvesJSON = jsonObject.getJSONArray("shelves")
 
                 for( k in 0 until shelvesJSON.length()) {
-                    item.shelfIds.add(shelvesJSON.getInt(k))
+                    val shelfJSON:JSONObject = shelvesJSON[k] as JSONObject
+
+                    val shelfId = shelfJSON.getInt("id")
+                    val shelfLabel = shelfJSON.getString("label")
+                    val shelfBarcode = shelfJSON.getString("barcode")
+                    val itemQuantity = shelfJSON.getInt("item_quantity")
+
+                    item.shelfQuantities.add(ShelfQuantity(shelfId, shelfLabel, shelfBarcode, itemQuantity))
                 }
 
                 items.add(item)
@@ -160,7 +166,7 @@ class Shelving {
     }
 
     suspend fun getShelfItemQuantity(shelf: Shelf, item: Item, server: Server, user: User): Int {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             val result: HttpResponse = client.submitForm(
                 url = server.requestUrl(),
@@ -181,7 +187,7 @@ class Shelving {
     }
 
     suspend fun createShelf(label: String, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             client.submitForm(
                 url = server.requestUrl(),
@@ -195,7 +201,7 @@ class Shelving {
     }
 
     suspend fun deleteShelf(shelf: Shelf, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val client = HttpClient(CIO)
             client.submitForm(
                 url = server.requestUrl(),
@@ -209,12 +215,12 @@ class Shelving {
     }
 
     suspend fun addItemToShelfByBarcode(barcode: String, quantity: Int, shelf: Shelf, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val inventory = Inventory()
             val item = inventory.getItemByBarcode(barcode, server, user)
 
             val client = HttpClient(CIO)
-            val response:HttpResponse = client.submitForm(
+            client.submitForm(
                 url = server.requestUrl(),
                 formParameters = Parameters.build {
                     append("token", user.token)
@@ -228,7 +234,7 @@ class Shelving {
     }
 
     suspend fun removeItemFromShelfByBarcode(barcode: String, quantity: Int, shelf: Shelf, server: Server, user: User) {
-        if(user.loggedIn(server)) {
+        if(user.loggedIn) {
             val inventory = Inventory()
             val item = inventory.getItemByBarcode(barcode, server, user)
 

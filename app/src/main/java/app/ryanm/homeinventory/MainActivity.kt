@@ -2,7 +2,6 @@ package app.ryanm.homeinventory
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -15,12 +14,10 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import app.ryanm.homeinventory.databinding.ActivityMainBinding
 import app.ryanm.homeinventory.network.Network
 import app.ryanm.homeinventory.network.Server
 import app.ryanm.homeinventory.network.User
-import app.ryanm.homeinventory.ui.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -36,9 +33,6 @@ class MainActivity : AppCompatActivity(), Network {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        Log.i("Black: ", getColor(R.color.black).toString())
-        Log.i("White: ", getColor(R.color.white).toString())
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -156,18 +150,31 @@ class MainActivity : AppCompatActivity(), Network {
         lifecycleScope.launch (context = Dispatchers.Main) {
             if(server.connected()) {
                 user.login(server)
-            }
 
-            if(server.connected() && user.loggedIn(server) ) {
-                navMenu.findItem(R.id.scanFragment).isVisible = true
-                navMenu.findItem(R.id.inventoryFragment).isVisible = true
-                navMenu.findItem(R.id.shelvesFragment).isVisible = true
-
-                val userView = findViewById<TextView>(R.id.userView)
-                userView.text = user.username
+                if (user.loggedIn) {
+                    navMenu.findItem(R.id.scanFragment).isVisible = true
+                    navMenu.findItem(R.id.inventoryFragment).isVisible = true
+                    navMenu.findItem(R.id.shelvesFragment).isVisible = true
+                } else {
+                    navController.navigate(R.id.action_scanFragment_to_loginFragment)
+                }
             } else {
                 navController.navigate(R.id.action_scanFragment_to_loginFragment)
             }
+        }
+
+        user.setOnLoginListener {
+            val navigationView: NavigationView = findViewById(R.id.nav_view)
+            val userView =
+                navigationView.getHeaderView(0).findViewById<TextView>(R.id.userView)
+            userView.text = user.username
+        }
+
+        user.setOnSignoutListener {
+            val navigationView: NavigationView = findViewById(R.id.nav_view)
+            val userView =
+                navigationView.getHeaderView(0).findViewById<TextView>(R.id.userView)
+            userView.text = getString(R.string.signed_out)
         }
     }
 
@@ -188,91 +195,5 @@ class MainActivity : AppCompatActivity(), Network {
 
     override fun getUser(): User {
         return user
-    }
-
-    override fun login(email: String, password: String, url: String) {
-        lifecycleScope.launch (context = Dispatchers.Main) {
-            if(server.connect(url)) {
-                when (user.login(email, password, server)) {
-                    "invalid-user" -> {
-                        val loginFragment =
-                            supportFragmentManager.findFragmentById(R.id.loginFragment) as LoginFragment
-                        loginFragment.loginError("invalid-user")
-                    }
-                    "invalid-password" -> {
-                        val loginFragment =
-                            supportFragmentManager.findFragmentById(R.id.loginFragment) as LoginFragment
-                        loginFragment.loginError("invalid-password")
-                    }
-                    "user-disabled" -> {
-                        val loginFragment =
-                            supportFragmentManager.findFragmentById(R.id.loginFragment) as LoginFragment
-                        loginFragment.loginError("user-disabled")
-                    }
-                }
-
-                if (user.loggedIn(server)) {
-                    navMenu.findItem(R.id.loginFragment).isVisible = false
-                    navMenu.findItem(R.id.scanFragment).isVisible = true
-                    navMenu.findItem(R.id.inventoryFragment).isVisible = true
-                    navMenu.findItem(R.id.shelvesFragment).isVisible = true
-
-                    val userView = findViewById<TextView>(R.id.userView)
-                    userView.text = user.username
-
-                    val navController =
-                        supportFragmentManager.primaryNavigationFragment?.findNavController()
-
-                    navController?.navigate(R.id.action_loginFragment_to_scanFragment)
-
-                    val expandView = findViewById<TextView>(R.id.expandView)
-                    expandView.text = getString(R.string.down_arrow)
-
-                    navMenu.findItem(R.id.loginFragment).isVisible = false
-                    navMenu.findItem(R.id.signoutLink).isVisible = false
-
-                    navMenu.findItem(R.id.scanFragment).isVisible = true
-                    navMenu.findItem(R.id.inventoryFragment).isVisible = true
-                    navMenu.findItem(R.id.shelvesFragment).isVisible = true
-                    navMenu.findItem(R.id.shoppingList).isVisible = true
-
-                    val sharedPrefs = getPreferences(Context.MODE_PRIVATE)
-                    with(sharedPrefs.edit()) {
-                        putString(getString(R.string.server), server.url)
-                        putString(getString(R.string.email), user.username)
-                        putString(getString(R.string.token), user.token)
-                        apply()
-                    }
-                }
-            } else {
-                val loginFragment =
-                    supportFragmentManager.findFragmentById(R.id.loginFragment) as LoginFragment
-                loginFragment.loginError("invalid-server")
-            }
-        }
-    }
-
-    override fun login(token: String, url: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun register(email: String, password: String, url: String) {
-        lifecycleScope.launch {
-            if(server.connect(url)) {
-                when(user.register(email, password, server)) {
-                    "success" -> {
-                        val navController = supportFragmentManager.primaryNavigationFragment?.findNavController()
-                        navController?.navigate(R.id.action_registerFragment_to_loginFragment)
-                    }
-                    "user" -> {
-                        val registerFragment = supportFragmentManager.findFragmentById(R.id.registerFragment) as RegisterFragment
-                        registerFragment.registerError("invalid-user")
-                    }
-                }
-            } else {
-                val registerFragment = supportFragmentManager.findFragmentById(R.id.registerFragment) as RegisterFragment
-                registerFragment.registerError("invalid-server")
-            }
-        }
     }
 }

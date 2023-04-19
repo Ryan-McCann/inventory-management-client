@@ -11,6 +11,7 @@ class BarcodeScanner (private val barcodeListener: BarcodeListener) :ImageAnalys
     private val scanner = BarcodeScanning.getClient()
 
     override fun  analyze(imageProxy: ImageProxy) {
+        @androidx.camera.core.ExperimentalGetImage
         val mediaImage = imageProxy.image
         if(mediaImage != null) {
             val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
