@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <CheckBox
-        android:id="@+id/boughtCheckBox"
+        android:id="@+id/shoppingCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,15 +17,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        app:layout_constraintBottom_toBottomOf="@+id/boughtCheckBox"
-        app:layout_constraintStart_toEndOf="@+id/boughtCheckBox"
+        app:layout_constraintBottom_toBottomOf="@+id/shoppingCheckBox"
+        app:layout_constraintStart_toEndOf="@+id/shoppingCheckBox"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/shoppingQuantityView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/boughtCheckBox"
+        app:layout_constraintBottom_toBottomOf="@+id/shoppingCheckBox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
